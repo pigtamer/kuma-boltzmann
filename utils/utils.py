@@ -28,27 +28,38 @@ def calc_energy(w, v, n, t, x0, C):
 
 #%%
 def nqueen_energy(x):
-    nparam = len(x)
-    
+    # for example in a 3x3 chesspad, we place queens (castles)
     # S{i=0...2}(  (S{j=1...3}( x_{i*3+j} ) - 1)**2 )  ) +
     # S{i=1...3}(  (S{j=0...2}( x_{i+j*3} ) - 1)**2 )  )
     # --->> Generalize 
     # S{i=0...N-1}(  (S{j=1...N  }( x_{i*3+j} ) - 1)**2 )  ) +
     # S{i=1...N  }(  (S{j=0...N-1}( x_{i+j*3} ) - 1)**2 )  )
     energy = 0
-
-    for i in range(int(np.sqrt(nparam))):
+    pad_width = int(np.sqrt(len(x)))
+    for i in range(pad_width):
         term = 0
-        for j in range(1, int(np.sqrt(nparam)) + 1):
-            term += x[i*3 + j - 1]
+        for j in range(1, pad_width + 1):
+            term += x[i*pad_width + j - 1]
         energy += (term -1) ** 2
 
-    for i in range(1, int(np.sqrt(nparam)) + 1):
+    for i in range(1, pad_width + 1):
         term = 0
-        for j in range(int(np.sqrt(nparam))):
-            term += x[i + j*3 - 1]
+        for j in range(pad_width):
+            term += x[i + j*pad_width - 1]
         energy += (term -1) ** 2
 
+    return energy
+
+def lineq_energy(x, A, b):
+    # Equations are expressed in Ax = b
+    assert(A.shape[0] == A.shape[1] and A.shape[0] == len(b))
+    energy = 0
+    for k in range(len(b)):
+        term = 0
+        for j in range(len(b)):
+            term += x[j] * A[k][j]
+        term -= b[k]
+        energy += term**2
     return energy
 
 #%%
@@ -76,10 +87,26 @@ def ecalc_weights(fenergy, nparam, IF_SYMM = True):
         else:
             lbl = 0
         for l in range(lbl, nparam): # assume symmetry
-            xkl = x.copy(); xkl[k] = 1; xkl[l] = 1
-            wxkl[k][l] = -fenergy(xkl) + thek[k] + thek[l] + C
+            if l == k:
+                wxkl[k][l]=0
+            else:
+                xkl = x.copy(); xkl[k] = 1; xkl[l] = 1
+                wxkl[k][l] = -fenergy(xkl) + thek[k] + thek[l] + C
             if IF_SYMM:
                 wxkl[l][k] = wxkl[k][l]
     return (wxkl, thek, C) # notice the sequence
+
+# %%
+
+# test energy funcs
+print(nqueen_energy([1,0,0,0,0,1,0,1,0]), "\n")
+print(ecalc_weights(nqueen_energy, 9, False), "\n")
+
+A = np.array([[1,-1,1,1], [2,0,-1,1], [0,1,-1,-1], [-1,1,1,-1]])
+b = np.array([2,2,-2,-1])
+print( lineq_energy([1,1,0,0], A, b), "\n")
+
+# using lambda function to fix certain values
+print(ecalc_weights(lambda x: lineq_energy(x, A, b), 4, False), "\n")
 
 # %%
