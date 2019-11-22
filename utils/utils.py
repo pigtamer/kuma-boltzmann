@@ -62,6 +62,8 @@ def lineq_energy(x, A, b):
         energy += term**2
     return energy
 
+def cnpost_energy():
+    pass
 #%%
 def ecalc_weights(fenergy, nparam, IF_SYMM = True):
     # calculates the weights of a BM from the energy function
