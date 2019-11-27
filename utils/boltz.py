@@ -10,6 +10,7 @@ class BoltzMachine():
         self.value_nodes = value_nodes
         self.theta = theta
         self.x0 = x0
+        self.fix_list = np.zeros(n_nodes)
         if init_method == 'rand':
             self.randinit()
 
@@ -26,8 +27,11 @@ class BoltzMachine():
     def update_all(self, FLAG_STOCH=False, alpha=1):
         # update ALL the values of BM
         for i in range(self.n_nodes):
-            self.value_nodes[i] = self.update_single(
-                i, FLAG_STOCH, alpha)  # one node at a time
+            if self.fix_list[i] == 0:
+                self.value_nodes[i] = self.update_single(
+                    i, FLAG_STOCH, alpha)  # one node at a time
+            else:
+                continue
 
     def randinit(self):
         # this func is supposed to initialize the values of our BM
@@ -41,6 +45,10 @@ class BoltzMachine():
 
     def set_single(self):
         # set the value of a node manually
+        pass
+
+    def fix_val(self, idxs, vals):
+        # fix the values of certain nodes
         pass
 
     def view_graph(self, layout=nx.DiGraph()):
