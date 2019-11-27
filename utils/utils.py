@@ -98,6 +98,10 @@ def ecalc_weights(fenergy, nparam, IF_SYMM = True):
                 wxkl[l][k] = wxkl[k][l]
     return (wxkl, thek, C) # notice the sequence
 
+def diag0(x):
+    for k in range(x.shape[0]):
+        x[k,k]=0
+    return x
 # %%
 
 # test energy funcs

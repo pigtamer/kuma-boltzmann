@@ -37,13 +37,92 @@ def test(taskid = 1, iternum=10000, alpha=1):
 
         w, theta, C = ecalc_weights(lambda x: lineq_energy(x, A, b), n, False)
     elif taskid == 4:
-        pass
+        return
     elif taskid == 5:
-        pass
-    elif taskid == 6:
-        pass
+        n_nodes = 6
+        bm = BoltzMachine(n_nodes)
+        bm.show()
+        bm.fix_val([0, 1], [0,0]) # fix x1, x2 to (0,0)
+        bm.show()
+        bm.update_all()
+        bm.show()
 
-    
+        adja_mask = np.ones((n_nodes, n_nodes))
+        for k in range(n_nodes):
+            adja_mask[1, k] = 0
+            adja_mask[0, k] = 0
+            adja_mask[k, k] = 0
+        adja_mask[n_nodes-1,0] =0
+        adja_mask[n_nodes-1,1] =0
+
+        bm.weights*=adja_mask
+        # A:
+        N = iternum
+
+        wavg = np.zeros((n_nodes, n_nodes))
+        tavg = np.zeros(n_nodes)
+        bm.randinit()
+        bm.randinit_weight()
+        bm.fix_val([0, 1], [0,0]) # fix x1, x2 to (0,0)
+        bm.weights*=adja_mask
+        for t in range(N):
+            
+
+            wavg += np.matmul(np.matrix(bm.value_nodes).T,
+            np.matrix(bm.value_nodes))
+
+            tavg += bm.x0*bm.value_nodes
+            bm.update_all(FLAG_STOCH=True, alpha=alpha)
+        wavg *= adja_mask
+        wavg_a = wavg / N
+        tavg_a = tavg / N
+        #B:
+        bm.randinit_weight(); bm.randinit()
+        
+        print(bm.weights)
+        wavg = np.zeros((n_nodes, n_nodes))
+        tavg = np.zeros(n_nodes)
+        eps =1
+        
+
+        bm.randinit()
+        bm.randinit_weight()
+        bm.weights*=adja_mask
+        for t in range(N):
+            dice = rnd.rand()
+            y = 0 if dice<0.8 else 1
+            bm.fix_val([0,1, -1], [0,0,y])
+            wavg += np.matmul(np.matrix(bm.value_nodes).T,
+            np.matrix(bm.value_nodes))
+            wavg = wavg * adja_mask
+
+            tavg += bm.x0*bm.value_nodes
+
+            bm.update_all(FLAG_STOCH=True, alpha=alpha)
+            wavg_b = wavg / (t+1)
+            tavg_b = tavg / (t+1)
+
+            dw = (wavg_b - wavg_a) * eps
+            dt = (tavg_b - tavg_a) * eps
+
+            bm.weights += dw
+            bm.theta += dt
+        print(bm.weights)
+        bm.unlock()
+        N = 10000
+        en_this = np.zeros(N, dtype=float)
+
+        for k in range(N):
+            bm.randinit()
+            bm.fix_val([0,1], [0,0])
+            for j in range(10):
+                bm.update_all(FLAG_STOCH=True, alpha=alpha)
+            en_this[k] = bm.value_nodes[-1]
+        plt.hist(en_this)
+        plt.show()
+        return
+
+
     bm = BoltzMachine(n, v, w, theta, x0)
     bm.show()
     
@@ -52,7 +131,7 @@ def test(taskid = 1, iternum=10000, alpha=1):
     # en_all = []
     for k in range(iter_num):
         bm.randinit()
-        for j in range(10):
+        for j in range(3):
             bm.update_all(FLAG_STOCH=True, alpha=alpha)
         en_this[k] = calc_energy(w, bm.get_value(), n, theta, x0, C)
         if iter_num < 100:
@@ -65,7 +144,7 @@ def test(taskid = 1, iternum=10000, alpha=1):
     # plt.show()
 
 # %%
-test(iternum=100, taskid=1, alpha=10)
+test(iternum=1000, taskid=5, alpha=1)
 
 
 # %%
