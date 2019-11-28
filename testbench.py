@@ -8,6 +8,7 @@ from boltz import BoltzMachine
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 import networkx as nx
 
 
@@ -33,7 +34,8 @@ def test(taskid = 1, iternum=10000, alpha=1):
         w, theta, C = ecalc_weights(lambda x: lineq_energy(x, A, b), n, False)
     elif taskid == 4:
         x0 =1; n=16
-        w, theta, C = ecalc_weights(lambda x: cnpost_energy(x, m_dis, beta=100), 16, True)
+        m_dis = [[100, 1, 2, 3],[1, 100, 4,5], [2,4,100,6],[3,5,6,100]]
+        w, theta, C = ecalc_weights(lambda x: cnpost_energy(x, m_dis, beta=10), 16, True)
     elif taskid == 5:
         n_nodes = 6
         bm = BoltzMachine(n_nodes)
@@ -121,27 +123,34 @@ def test(taskid = 1, iternum=10000, alpha=1):
     # unified process for tasks 1~4
     v = np.zeros(n)
     bm = BoltzMachine(n, v, w, theta, x0)
-    bm.show()
     
     iter_num = iternum
     en_this = np.zeros(iter_num, dtype=float)
-    # en_all = []
+    stts = [None] *iter_num
+
+    bm.randinit()
+
     for k in range(iter_num):
-        bm.randinit()
-        for j in range(3):
-            bm.update_all(FLAG_STOCH=True, alpha=alpha)
+        # for j in range(3):
+        bm.update_all(FLAG_STOCH=True, alpha=alpha)
         en_this[k] = calc_energy(w, bm.get_value(), n, theta, x0, C)
+        stts[k] = np.array2string(bm.value_nodes)
         if iter_num < 100:
             bm.show()
     sns.set()
-    plt.hist(en_this)
+    vseq = pd.Series(stts).value_counts()
+    eseq = pd.Series(en_this).value_counts()
+    plt.figure()
+    vseq.plot('bar')
+    plt.figure()
+    eseq.plot('bar')
     # plt.hist(np.array(en_all))
 
     bm.view_graph()
-    # plt.show()
-
+    plt.show()
+    return
 # %%
-test(iternum=1000, taskid=4, alpha=3)
+test(iternum=10000, taskid=4, alpha=0.5)
 
 
 # %%

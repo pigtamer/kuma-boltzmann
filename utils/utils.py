@@ -117,20 +117,20 @@ def diag0(x):
 # %%
 
 # test energy funcs
-print(nqueen_energy([1,0,0,0,0,1,0,1,0]), "\n")
-print(ecalc_weights(nqueen_energy, 9, False), "\n")
+# print(nqueen_energy([1,0,0,0,0,1,0,1,0]), "\n")
+# print(ecalc_weights(nqueen_energy, 9, False), "\n")
 
-A = np.array([[1,-1,1,1], [2,0,-1,1], [0,1,-1,-1], [-1,1,1,-1]])
-b = np.array([2,2,-2,-1])
-print( lineq_energy([1,1,0,0], A, b), "\n")
+# A = np.array([[1,-1,1,1], [2,0,-1,1], [0,1,-1,-1], [-1,1,1,-1]])
+# b = np.array([2,2,-2,-1])
+# print( lineq_energy([1,1,0,0], A, b), "\n")
 
-# using lambda function to fix certain values
-print(ecalc_weights(lambda x: lineq_energy(x, A, b), 4, False), "\n")
+# # using lambda function to fix certain values
+# print(ecalc_weights(lambda x: lineq_energy(x, A, b), 4, False), "\n")
 
-# %%
-m_ind = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]
-m_dis = [[100, 1, 2, 3],[1, 100, 4,5], [2,4,100,6],[3,5,6,100]]
+# # %%
+# m_ind = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]
+# m_dis = [[100, 1, 2, 3],[1, 100, 4,5], [2,4,100,6],[3,5,6,100]]
 
-print(cnpost_energy(m_ind, m_dis, beta=1))
+# print(cnpost_energy(m_ind, m_dis, beta=1))
 
 # %%
