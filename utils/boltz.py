@@ -6,7 +6,7 @@ class BoltzMachine():
         self.n_nodes = n_nodes
         self.x0 = x0
         self.fix_list = np.zeros(n_nodes)
-        if weights==None or value_nodes==None:
+        if weights==None and value_nodes==None:
             if init_method == 'rand':
                 self.randinit_weight()
                 self.randinit()
@@ -42,9 +42,12 @@ class BoltzMachine():
         # this func is supposed to initialize the values of our BM
         self.value_nodes = rnd.rand(self.n_nodes)
 
+    def zeroinit(self):
+        self.value_nodes = np.zeros(self.n_nodes)
+
     def randinit_weight(self):
-        self.weights = rnd.rand(self.n_nodes, self.n_nodes)
-        self.theta = rnd.rand(self.n_nodes)
+        self.weights = rnd.randn(self.n_nodes, self.n_nodes)
+        self.theta = rnd.randn(self.n_nodes)
         # print("Randinit weights. All presets of connection weights are hereby cleared! \n")
 
     def show(self):

@@ -50,6 +50,7 @@ def nqueen_energy(x):
 
     return energy
 
+
 def lineq_energy(x, A, b):
     # Equations are expressed in Ax = b
     assert(A.shape[0] == A.shape[1] and A.shape[0] == len(b))
@@ -62,8 +63,19 @@ def lineq_energy(x, A, b):
         energy += term**2
     return energy
 
-def cnpost_energy():
-    pass
+def cnpost_energy(x, we, beta=1E3):
+    # we: weight of edges
+    E_c = nqueen_energy(x)
+    E_l = 0
+    p = int(np.sqrt(len(x)))
+    x = np.reshape(x, (p,p))
+    print(x)
+    for i in range(p-1):
+        for j in range(p):
+            for k in range(p):
+                E_l += we[j][k]*x[i][j]*x[i+1][k]
+    energy = E_c + E_l
+    return energy
 #%%
 def ecalc_weights(fenergy, nparam, IF_SYMM = True):
     # calculates the weights of a BM from the energy function
