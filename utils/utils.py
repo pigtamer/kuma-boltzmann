@@ -69,12 +69,12 @@ def cnpost_energy(x, we, beta=1E3):
     E_l = 0
     p = int(np.sqrt(len(x)))
     x = np.reshape(x, (p,p))
-    print(x)
+    # print(x)
     for i in range(p-1):
         for j in range(p):
             for k in range(p):
                 E_l += we[j][k]*x[i][j]*x[i+1][k]
-    energy = E_c + E_l
+    energy = beta*E_c + E_l
     return energy
 #%%
 def ecalc_weights(fenergy, nparam, IF_SYMM = True):
@@ -126,5 +126,11 @@ print( lineq_energy([1,1,0,0], A, b), "\n")
 
 # using lambda function to fix certain values
 print(ecalc_weights(lambda x: lineq_energy(x, A, b), 4, False), "\n")
+
+# %%
+m_ind = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]
+m_dis = [[100, 1, 2, 3],[1, 100, 4,5], [2,4,100,6],[3,5,6,100]]
+
+print(cnpost_energy(m_ind, m_dis, beta=1))
 
 # %%

@@ -19,25 +19,21 @@ def test(taskid = 1, iternum=10000, alpha=1):
     # Task 1: winner takes all
     if taskid == 1:
         x0 = 1; n = 9
-        v = np.zeros(n)
-
         w, theta, C = ecalc_weights(nqueen_energy, n)
     elif taskid == 2:
         x0 = 1; n = 4
-        v = np.zeros(n)
         A = np.array([[1,-1,2,1], [2,1,-2,1], [-1,2,1,2], [0,1,-1,-1]])
         b = np.array([3,0,0,-1])
-
         w, theta, C = ecalc_weights(lambda x: lineq_energy(x, A, b), n, False)
     elif taskid == 3:  
         x0 = 1; n = 4
         v = np.zeros(n)
         A = np.array([[1,-1,1,1], [2,0,-1,1], [0,1,-1,-1], [-1,1,1,-1]])
         b = np.array([2,2,-2,-1])
-
         w, theta, C = ecalc_weights(lambda x: lineq_energy(x, A, b), n, False)
     elif taskid == 4:
-        return
+        x0 =1; n=16
+        w, theta, C = ecalc_weights(lambda x: cnpost_energy(x, m_dis, beta=100), 16, True)
     elif taskid == 5:
         n_nodes = 6
         bm = BoltzMachine(n_nodes)
@@ -122,7 +118,8 @@ def test(taskid = 1, iternum=10000, alpha=1):
         plt.show()
         return
 
-
+    # unified process for tasks 1~4
+    v = np.zeros(n)
     bm = BoltzMachine(n, v, w, theta, x0)
     bm.show()
     
@@ -144,7 +141,7 @@ def test(taskid = 1, iternum=10000, alpha=1):
     # plt.show()
 
 # %%
-test(iternum=100000, taskid=1, alpha=3)
+test(iternum=1000, taskid=4, alpha=3)
 
 
 # %%

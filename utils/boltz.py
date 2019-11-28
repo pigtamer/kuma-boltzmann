@@ -6,7 +6,7 @@ class BoltzMachine():
         self.n_nodes = n_nodes
         self.x0 = x0
         self.fix_list = np.zeros(n_nodes)
-        if weights==None and value_nodes==None:
+        if weights is None and value_nodes is None:
             if init_method == 'rand':
                 self.randinit_weight()
                 self.randinit()
