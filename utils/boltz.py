@@ -74,7 +74,7 @@ class BoltzMachine():
         G = nx.convert_matrix.from_numpy_array(self.weights, create_using=layout)
         layout = nx.circular_layout(G)
         plt.figure(figsize=(4,4))
-        nx.draw(G, layout)
+        nx.draw(G, layout, with_labels=True)
         labels = nx.get_edge_attributes(G, "weight")
         nx.draw_networkx_edge_labels(G, pos=layout, edge_labels=labels)
         plt.show()

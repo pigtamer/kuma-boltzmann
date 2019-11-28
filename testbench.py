@@ -146,11 +146,15 @@ def test(taskid = 1, iternum=10000, alpha=1):
     eseq.plot('bar')
     # plt.hist(np.array(en_all))
 
+    # 测试能量递减要在一个个updatesingle中做. Updateall完成之后就不行了
+    # if taskid == 2:
+    #     plt.figure()
+    #     plt.plot(en_this)
     bm.view_graph()
     plt.show()
     return
 # %%
-test(iternum=10000, taskid=4, alpha=0.5)
+test(iternum=100000, taskid=2, alpha=0.3)
 
 
 # %%
