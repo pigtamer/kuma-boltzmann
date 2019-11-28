@@ -39,11 +39,6 @@ def test(taskid = 1, iternum=10000, alpha=1):
     elif taskid == 5:
         n_nodes = 6
         bm = BoltzMachine(n_nodes)
-        # bm.show()
-        # bm.fix_val([0, 1], [0,0]) # fix x1, x2 to (0,0)
-        # bm.show()
-        # bm.update_all()
-        # bm.show()
 
         adja_mask = np.ones((n_nodes, n_nodes))
         for k in range(n_nodes):
@@ -131,7 +126,6 @@ def test(taskid = 1, iternum=10000, alpha=1):
     bm.randinit()
 
     for k in range(iter_num):
-        # for j in range(3):
         bm.update_all(FLAG_STOCH=True, alpha=alpha)
         en_this[k] = calc_energy(w, bm.get_value(), n, theta, x0, C)
         stts[k] = np.array2string(bm.value_nodes)
@@ -144,7 +138,6 @@ def test(taskid = 1, iternum=10000, alpha=1):
     vseq.plot('bar')
     plt.figure()
     eseq.plot('bar')
-    # plt.hist(np.array(en_all))
 
     # 测试能量递减要在一个个updatesingle中做. Updateall完成之后就不行了
     # if taskid == 2:

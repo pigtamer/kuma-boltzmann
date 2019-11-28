@@ -2,14 +2,13 @@
 from utils import *
 
 class BoltzMachine():
-    def __init__(self, n_nodes, value_nodes=None, weights=None, theta=None, x0=1, init_method='rand'):
+    def __init__(self, n_nodes, value_nodes=None, weights=None, theta=None, x0=1):
         self.n_nodes = n_nodes
         self.x0 = x0
         self.fix_list = np.zeros(n_nodes)
         if weights is None and value_nodes is None:
-            if init_method == 'rand':
-                self.randinit_weight()
-                self.randinit()
+            self.randinit_weight()
+            self.randinit()
         else:
             assert(n_nodes == weights.shape[0] &
                weights.shape[0] == weights.shape[1])
