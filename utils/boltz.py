@@ -23,17 +23,15 @@ class BoltzMachine():
         s = -self.theta[idx]*self.x0 + \
             np.sum(self.weights[idx, :]*self.value_nodes)
         if FLAG_STOCH:
-            new_value_i_j = act_stoc(s, alpha)  # i set an arbitrary alpha.
+            self.value_nodes[idx] = act_stoc(s, alpha)  # i set an arbitrary alpha.
         else:
-            new_value_i_j = s > 0
-        return new_value_i_j
+            self.value_nodes[idx] =  s > 0
 
     def update_all(self, FLAG_STOCH=False, alpha=1):
         # update ALL the values of BM
         for i in range(self.n_nodes):
             if self.fix_list[i] == 0:
-                self.value_nodes[i] = self.update_single(
-                    i, FLAG_STOCH, alpha)  # one node at a time
+                self.update_single(i, FLAG_STOCH, alpha)  # one node at a time
             else:
                 continue
 
