@@ -66,55 +66,60 @@ def test(taskid=1, iternum=10000, alpha=1):
         bm.randinit()
         bm.randinit_weight()
         bm.weights *= adja_mask
-
-        bm.fix_val([0, 1], [0, 0])  # fix x1, x2 to (0,0)
-        for t in range(N):
-            wavg += np.matmul(np.matrix(bm.value_nodes).T,
-                              np.matrix(bm.value_nodes))
-
-            tavg += bm.x0*bm.value_nodes
-            bm.update_all(FLAG_STOCH=True, alpha=alpha)
-        wavg *= adja_mask
-        wavg_a = wavg / N
-        tavg_a = tavg / N
-        # B:
-
-        print(bm.weights)
-        print(bm.theta)
-
-        wavg = np.zeros((n_nodes, n_nodes))
-        tavg = np.zeros(n_nodes)
+        bm.theta[[0,1]] = 0
+        x1,x2,yp0 = 0,0, 0.8
+        bm.fix_val([0, 1], [x1, x2])  # fix x1, x2 to (0,0)
         eps = 0.1
 
-        bm.randinit()
-        for t in range(N):
-            # bm.randinit_weight()
-            # bm.weights*=adja_mask
+        for train_iter in range(250):
+            for t in range(N):
+                wavg += np.matmul(np.matrix(bm.value_nodes).T,
+                                np.matrix(bm.value_nodes))
 
-            dice = rnd.rand()
-            y = 0 if dice < 0.8 else 1
-            bm.fix_val([0, 1, -1], [0, 0, y])
-            wavg += np.matmul(np.matrix(bm.value_nodes).T,
-                              np.matrix(bm.value_nodes))
-            wavg = wavg * adja_mask
+                tavg += bm.x0*bm.value_nodes
+                wavg *= adja_mask
+                tavg[[0,1]] = 0            
+                bm.update_all(FLAG_STOCH=True, alpha=alpha)
 
-            tavg += bm.x0*bm.value_nodes
-            tavg[[0,1]] = 0
-            bm.update_all(FLAG_STOCH=True, alpha=alpha)
-        wavg_b = wavg / N
-        tavg_b = tavg / N
+            wavg_a = wavg / N
+            tavg_a = tavg / N
+            # B:
 
-        dw = (wavg_b - wavg_a) * eps
-        dt = (tavg_b - tavg_a) * eps
+            # print(bm.weights)
+            # print(bm.theta)
 
-        bm.weights += dw
-        bm.theta += dt
+            wavg = np.zeros((n_nodes, n_nodes))
+            tavg = np.zeros(n_nodes)
+        
+            bm.randinit()
+            for t in range(N):
+                # bm.randinit_weight()
+                # bm.weights*=adja_mask
+
+                dice = rnd.rand()
+                y = 0 if dice < yp0 else 1
+                bm.fix_val([0, 1, -1], [x1, x2, y])
+                wavg += np.matmul(np.matrix(bm.value_nodes).T,
+                                np.matrix(bm.value_nodes))
+                wavg = wavg * adja_mask
+
+                tavg += bm.x0*bm.value_nodes
+                tavg[[0,1]] = 0
+                bm.update_all(FLAG_STOCH=True, alpha=alpha)
+            wavg_b = wavg / N
+            tavg_b = tavg / N
+
+            dw = (wavg_b - wavg_a) * eps
+            dt = (tavg_b - tavg_a) * eps
+
+            bm.weights += dw
+            bm.theta += dt
         print(bm.weights)
         print(bm.theta)
         bm.unlock()
-        N = 10000
+        N = 100
         en_this = np.zeros(N, dtype=float)
-        bm.fix_val([0, 1], [0, 0])
+        bm.fix_val([0, 1], [x1, x2])
         bm.randinit()
 
         for k in range(N):
@@ -161,7 +166,7 @@ def test(taskid=1, iternum=10000, alpha=1):
 
 
 # %%
-test(iternum=10000, taskid=5, alpha=0.01)
+test(iternum=10000, taskid=5, alpha=0.2)
 
 
 # %%
