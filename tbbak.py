@@ -19,19 +19,12 @@ def test(taskid=1, iternum=10000, alpha=1):
         x0 = 1
         n = 9
         w, theta, C = ecalc_weights(nqueen_energy, n)
-    elif taskid == "liu":
-        x0 = 1
-        n=4
-        w, theta, C = ecalc_weights(liu_energy, n)
-        print("Weights=\n",w)
-        print("Theta=",theta)
-        print("C=",C)
     elif taskid == 2:
         x0 = 1
         n = 4
-        A = np.array([[1, -1, 1, 1], [-1, 2, -1, -1],
-                      [2, -1, 2, 1], [-1, -1, 1, 1]])
-        b = np.array([2, -2, 4, 0])
+        A = np.array([[1, -1, 2, 1], [2, 1, -2, 1],
+                      [-1, 2, 1, 2], [0, 1, -1, -1]])
+        b = np.array([3, 0, 0, -1])
         w, theta, C = ecalc_weights(lambda x: lineq_energy(x, A, b), n, False)
     elif taskid == 3:
         x0 = 1
@@ -71,76 +64,71 @@ def test(taskid=1, iternum=10000, alpha=1):
         x2 = [0,1,0,1]
         yp0=[0.8, 0.1, 0.3,0.6]
 
-        eps = 1
+
+        bm.randinit_weight()
+        bm.weights *= adja_mask
+        bm.theta[[0,1]] = 0
+        # x1,x2,yp0 = 0,0, 0.8
+        eps = 2
 
         for comb in range(len(x1)):
-            bm.unlock()
-            bm.randinit_weight()
-            bm.weights *= adja_mask
-
-            bm.randinit()                
-
-
-            bm.theta[[0,1]] = 0
-            
             bm.fix_val([0, 1], [x1[comb], x2[comb]])  # fix x1, x2 to (0,0)
+            for train_iter in range(10):
+                bm.randinit()
+                wavg = np.zeros((n_nodes, n_nodes))
+                tavg = np.zeros(n_nodes)
+                for t in range(N):
+                    wavg += np.matmul(np.matrix(bm.value_nodes).T,
+                                    np.matrix(bm.value_nodes))
 
-            wavg = np.zeros((n_nodes, n_nodes))
-            tavg = np.zeros(n_nodes)
-            for t in range(N):
-                bm.update_all(FLAG_STOCH=True, alpha=alpha)
+                    tavg += bm.x0*bm.value_nodes
+                    wavg *= adja_mask
+                    tavg[[0,1]] = 0            
+                    bm.update_all(FLAG_STOCH=True, alpha=alpha)
 
-                wavg += np.matmul(np.matrix(bm.value_nodes).T,
-                                np.matrix(bm.value_nodes))
+                wavg_a = wavg / N
+                tavg_a = tavg / N
+                # B:
 
-                tavg += bm.x0*bm.value_nodes
+                # print(bm.weights)
+                # print(bm.theta)
+
+                wavg = np.zeros((n_nodes, n_nodes))
+                tavg = np.zeros(n_nodes)
             
-            wavg *= adja_mask
-            tavg[[0,1]] = 0
-            wavg_a = wavg / N
-            tavg_a = tavg / N
-            # B:
+                bm.randinit()
+                for t in range(N):
+                    # bm.randinit_weight()
+                    # bm.weights*=adja_mask
 
-            wavg = np.zeros((n_nodes, n_nodes))
-            tavg = np.zeros(n_nodes)
-        
-            bm.randinit()
-            bm.fix_val([0, 1], [x1[comb], x2[comb]])  # fix x1, x2 to (0,0)
+                    dice = rnd.rand()
+                    y = 0 if dice < yp0[comb] else 1
+                    bm.fix_val([0, 1, -1], [x1[comb], x2[comb], y])
+                    wavg += np.matmul(np.matrix(bm.value_nodes).T,
+                                    np.matrix(bm.value_nodes))
+                    wavg = wavg * adja_mask
 
-            for t in range(N):
-                # bm.randinit_weight()
-                # bm.weights*=adja_mask
+                    tavg += bm.x0*bm.value_nodes
+                    tavg[[0,1]] = 0
+                    bm.update_all(FLAG_STOCH=True, alpha=alpha)
+                wavg_b = wavg / N
+                tavg_b = tavg / N
 
-                dice = rnd.rand()
-                y = 0 if dice < yp0[comb] else 1
-                bm.fix_val([-1], y)
-                bm.update_all(FLAG_STOCH=True, alpha=alpha)
+                dw = (wavg_b - wavg_a) * eps
+                dt = (tavg_b - tavg_a) * eps
 
-                wavg += np.matmul(np.matrix(bm.value_nodes).T,
-                                np.matrix(bm.value_nodes))
-
-                tavg += bm.x0*bm.value_nodes
-            wavg = wavg * adja_mask
-            tavg[[0,1]] = 0
-            wavg_b = wavg / N
-            tavg_b = tavg / N
-
-            dw = (wavg_b - wavg_a) * eps
-            dt = (tavg_b - tavg_a) * eps
-
-            bm.weights += dw
-            bm.theta += dt
-
+                bm.weights += dw
+                bm.theta += dt
             print(x1[comb], x2[comb], yp0[comb], "\n----\n")
             print(bm.weights)
             print(bm.theta)
             bm.unlock()
-            N1 = N
-            en_this = np.zeros(N1, dtype=float)
-            bm.randinit()
+            N = 10000
+            en_this = np.zeros(N, dtype=float)
             bm.fix_val([0, 1], [x1[comb], x2[comb]])
+            bm.randinit()
 
-            for k in range(N1):
+            for k in range(N):
                 # for j in range(10):
                 # print(bm.weights)
                 bm.update_all(FLAG_STOCH=True, alpha=alpha)
@@ -148,9 +136,9 @@ def test(taskid=1, iternum=10000, alpha=1):
             plt.figure()
             plt.hist(en_this)
             plt.show()
-
         return
-
+    print(theta)
+    return
     # unified process for tasks 1~4
     v = np.zeros(n)
     bm = BoltzMachine(n, v, w, theta, x0)
@@ -179,15 +167,14 @@ def test(taskid=1, iternum=10000, alpha=1):
             enwave_t2.append(calc_energy(
                 w, bm.value_nodes, n, theta, x0, C))
         plt.plot(enwave_t2)
-        print(enwave_t2)
-    bm.show()
+
     bm.view_graph()
     plt.show()
     return
 
 
 # %%
-test(iternum=20000, taskid=2, alpha=2)
+test(iternum=100, taskid=4, alpha=0.2)
 
 
 # %%

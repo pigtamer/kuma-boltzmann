@@ -62,6 +62,10 @@ def lineq_energy(x, A, b):
         term -= b[k]
         energy += term**2
     return energy
+    
+def liu_energy(x):
+    return -8*x[0]*x[1] + 10*x[0]*x[2] + 6*x[0]*x[3] - 17*x[0] - 12*x[1]*x[2] \
+        - 10*x[1]*x[3] + 27*x[1] + 10*x[2]*x[3] -17*x[2] -12 *x[3] +24
 
 def cnpost_energy(x, we, beta=1E3):
     # we: weight of edges
