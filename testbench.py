@@ -171,9 +171,9 @@ def test(taskid=1, iternum=10000, alpha=1):
             vseq = pd.Series(stts).value_counts()
             eseq = pd.Series(en_this).value_counts()
         plt.figure()
-        vseq.plot("bar")
+        vseq.plot(kind="bar")
         plt.figure()
-        eseq.plot("bar")
+        eseq.plot(kind="bar")
     else:
         for idx in range(n):
             bm.update_single(idx, alpha=alpha)
@@ -187,7 +187,7 @@ def test(taskid=1, iternum=10000, alpha=1):
 
 
 # %%
-test(iternum=20000, taskid=2, alpha=2)
+test(iternum=500, taskid=4, alpha=2)
 
 
 # %%
