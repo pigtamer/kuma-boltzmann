@@ -1,7 +1,8 @@
 #%%
 from utils import *
 
-class BoltzMachine():
+
+class BoltzMachine:
     def __init__(self, n_nodes, value_nodes=None, weights=None, theta=None, x0=1):
         self.n_nodes = n_nodes
         self.x0 = x0
@@ -10,22 +11,18 @@ class BoltzMachine():
             self.randinit_weight()
             self.randinit()
         else:
-            assert(n_nodes == weights.shape[0] &
-               weights.shape[0] == weights.shape[1])
+            assert n_nodes == weights.shape[0] & weights.shape[0] == weights.shape[1]
             self.weights = weights
             self.theta = theta
             self.value_nodes = value_nodes
-            
-
 
     def update_single(self, idx, FLAG_STOCH=False, alpha=1):
         # updates the value of a single node according to the partial summary and activation function
-        s = -self.theta[idx]*self.x0 + \
-            np.sum(self.weights[idx, :]*self.value_nodes)
+        s = -self.theta[idx] * self.x0 + np.sum(self.weights[idx, :] * self.value_nodes)
         if FLAG_STOCH:
             self.value_nodes[idx] = act_stoc(s, alpha)  # i set an arbitrary alpha.
         else:
-            self.value_nodes[idx] =  s > 0
+            self.value_nodes[idx] = s > 0
 
     def update_all(self, FLAG_STOCH=False, alpha=1):
         # update ALL the values of BM
@@ -70,10 +67,11 @@ class BoltzMachine():
     def view_graph(self, layout=nx.DiGraph()):
         G = nx.convert_matrix.from_numpy_array(self.weights, create_using=layout)
         layout = nx.circular_layout(G)
-        plt.figure(figsize=(4,4))
+        plt.figure(figsize=(4, 4))
         nx.draw(G, layout, with_labels=True)
         labels = nx.get_edge_attributes(G, "weight")
         nx.draw_networkx_edge_labels(G, pos=layout, edge_labels=labels)
         plt.show()
+
 
 # %%
